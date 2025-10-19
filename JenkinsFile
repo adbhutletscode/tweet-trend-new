@@ -20,15 +20,6 @@ pipeline {
             }
         }
 
-        stage('SonarQube analysis') {
-            environment {
-                scannerHome = tool 'galexcy-sonar-scaner'
-            }
-            steps {
-                withSonarQubeEnv('galexcy-sonarqube-cred') {
-                    sh "${scannerHome}/bin/sonar-scanner"
-                }
-            }
-        }
+       
     }
 }
