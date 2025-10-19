@@ -9,9 +9,7 @@ pipeline {
         PATH = "/opt/apache-maven-3.9.6/bin:$PATH"
     }
 
-    tools {
-        maven 'maven' // Optional: only if you're managing Maven via Jenkins tools
-    }
+   
 
     stages {
         stage('Build') {
