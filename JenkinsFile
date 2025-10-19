@@ -9,17 +9,26 @@ pipeline {
         PATH = "/opt/apache-maven-3.9.6/bin:$PATH"
     }
 
-   
-
     stages {
         stage('Build') {
             steps {
-                 echo "----------- build started ----------"
+                echo "----------- build started ----------"
                 sh 'mvn clean deploy -Dmaven.test.skip=true'
-                 echo "----------- build complted ----------"
+                echo "----------- build completed ----------"
             }
         }
 
-       
+        stage('SonarQube analysis') {
+            environment {
+                scannerHome = tool 'valaxy-sonar-scanner'
+            }
+            steps {
+                echo "----------- SonarQube analysis started ----------"
+                withSonarQubeEnv('valaxy-sonarqube-server') {
+                    sh "${scannerHome}/bin/sonar-scanner"
+                }
+                echo "----------- SonarQube analysis completed ----------"
+            }
+        }
     }
 }
