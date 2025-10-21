@@ -1,5 +1,5 @@
 def registry = 'https://velexcy.jfrog.io/'
-Artifact location:/home/ubuntu/jenkins/workspace/ttrend-multibranch_main/jarstaging/com/valaxy/demo-workshop/2.1.2
+// Artifact location:/home/ubuntu/jenkins/workspace/ttrend-multibranch_main/jarstaging/com/valaxy/demo-workshop/2.1.2
 
 pipeline {
     agent {
