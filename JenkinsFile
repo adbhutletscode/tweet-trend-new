@@ -1,80 +1,4 @@
 def registry = 'https://velexcy.jfrog.io/'
-// Artifact location:/home/ubuntu/jenkins/workspace/ttrend-multibranch_main/jarstaging/com/valaxy/demo-workshop/2.1.2
-
-pipeline {
-    agent {
-        node {
-            label 'maven'
-        }
-    }
-
-    environment {
-        PATH = "/opt/apache-maven-3.9.6/bin:$PATH"
-	 MAVEN_OPTS = "-Xms256m -Xmx1024m"
-    }
-
-    stages {
-        stage('Build') {
-            steps {
-                echo "----------- build started ----------"
-                sh 'mvn clean deploy -Dmaven.test.skip=true'
-                echo "----------- build completed ----------"
-            }
-        }
- 	stage("test"){
-            steps{
-                echo "----------- unit test started ----------"
-                sh 'mvn surefire-report:report'
-                 echo "----------- unit test Complted ----------"
-            }
-        }
-
-
-        stage('SonarQube analysis') {
-            environment {
-                scannerHome = tool 'valaxy-sonar-scanner'
-            }
-            steps {
-                echo "----------- SonarQube analysis started ----------"
-                withSonarQubeEnv('valaxy-sonarqube-server') {
-                    sh "${scannerHome}/bin/sonar-scanner"
-                }
-                echo "----------- SonarQube analysis completed ----------"
-            }
-        }
-
- stage("Jar Publish") {
-            steps {
-                script {
-                        echo '<--------------- Jar Publish Started --------------->'
-                         def server = Artifactory.newServer url:registry+"/artifactory" ,  credentialsId:"artifact-cred"
-                         def properties = "buildid=${env.BUILD_ID},commitid=${GIT_COMMIT}";
-                         def uploadSpec = """{
-                              "files": [
-                                {
-                                  "pattern": "jarstaging/(*)",
-                                  "target": "/5-libs-release-local/{1}",
-                                  "flat": "false",
-                                  "props" : "${properties}",
-                                  "exclusions": [ "*.sha1", "*.md5"]
-                                }
-                             ]
-                         }"""
-                         def buildInfo = server.upload(uploadSpec)
-                         buildInfo.env.collect()
-                         server.publishBuildInfo(buildInfo)
-                         echo '<--------------- Jar Publish Ended --------------->'  
-                
-                }
-            }   
-        }   
-
-
-    }
-}
-
-
-def registry = 'https://velexcy.jfrog.io'
 
 pipeline {
     agent {
@@ -93,17 +17,17 @@ pipeline {
         stage('Build') {
             steps {
                 echo "----------- Build Started ----------"
-                sh 'mvn clean install'
+                sh 'mvn clean deploy -Dmaven.test.skip=true'
                 echo "----------- Build Completed ----------"
             }
         }
 
         stage('Unit Test') {
             steps {
-               echo "----------- unit test started ----------"
+                echo "----------- Unit Test Started ----------"
                 sh 'mvn surefire-report:report'
-                 echo "----------- unit test Complted ----------"
-
+                echo "----------- Unit Test Completed ----------"
+            }
         }
 
         stage('SonarQube Analysis') {
@@ -123,14 +47,14 @@ pipeline {
             steps {
                 script {
                     echo '<--------------- Jar Publish Started --------------->'
-                    
+
                     def server = Artifactory.newServer(
                         url: "${registry}/artifactory",
                         credentialsId: "artifact-cred"
                     )
-                    
+
                     def properties = "buildid=${env.BUILD_ID},commitid=${GIT_COMMIT}"
-                    
+
                     def uploadSpec = """{
                         "files": [
                             {
@@ -142,11 +66,11 @@ pipeline {
                             }
                         ]
                     }"""
-                    
+
                     def buildInfo = server.upload(uploadSpec)
                     buildInfo.env.collect()
                     server.publishBuildInfo(buildInfo)
-                    
+
                     echo '<--------------- Jar Publish Ended --------------->'
                 }
             }
@@ -162,5 +86,3 @@ pipeline {
         }
     }
 }
-
-
