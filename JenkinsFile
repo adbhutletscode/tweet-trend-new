@@ -1,5 +1,5 @@
-def registry = 'velexcy.jfrog.io'  // NO https:// and no trailing slash
-def imageName = 'velexcy.jfrog.io/valexcy-docker-local/ttrend'
+def registry = 'https://velexcy.jfrog.io/'
+def imageName = 'valaxy.jfrog.io/valaxy-docker/ttrend'
 def version   = '2.1.2'
 
 
