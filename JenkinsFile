@@ -1,6 +1,7 @@
 def registry = 'https://velexcy.jfrog.io/'
 def imageName = 'valaxy.jfrog.io/valaxy-docker/ttrend'
 def version   = '2.1.2'
+artifactory_token =''
 
 pipeline {
     agent {
@@ -92,7 +93,7 @@ pipeline {
             steps {
                 script {
                     echo '<--------------- Docker Publish Started --------------->'
-                    docker.withRegistry(registry, 'artifactory_token') {
+                    docker.withRegistry(registry, 'artifact-cred') {
                         app.push()
                     }
                     echo '<--------------- Docker Publish Ended --------------->'
@@ -100,7 +101,7 @@ pipeline {
             }
         }
     }
-
+	
     post {
         success {
             echo '✅ Pipeline completed successfully.'
