@@ -4,7 +4,7 @@ provider "aws" {
 
 resource "aws_instance" "demo-server" {
     ami = "ami-0360c520857e3138f"
-    instance_type = "m7i-flex.large"
+    instance_type = "t3.micro"
     key_name = "dpp"
     //security_groups = [ "demo-sg" ]
     vpc_security_group_ids = [aws_security_group.demo-sg.id]
