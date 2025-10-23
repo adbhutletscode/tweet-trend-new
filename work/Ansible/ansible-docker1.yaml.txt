@@ -1,0 +1,74 @@
+---
+- name: Install Apache Maven on Jenkins slave
+  hosts: jenkins-slave
+  become: true
+
+  vars:
+    maven_version: "3.9.6"
+    maven_install_dir: "/opt"
+    maven_url: "https://archive.apache.org/dist/maven/maven-3/{{ maven_version }}/binaries/apache-maven-{{ maven_version }}-bin.tar.gz"
+    maven_home: "/opt/apache-maven-{{ maven_version }}"
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install Java (required for Maven)
+      apt:
+        name: openjdk-17-jre
+        state: present
+
+    - name: Download Maven archive
+      get_url:
+        url: "{{ maven_url }}"
+        dest: "{{ maven_install_dir }}/apache-maven-{{ maven_version }}-bin.tar.gz"
+        mode: '0644'
+
+    - name: Extract Maven archive
+      unarchive:
+        src: "{{ maven_install_dir }}/apache-maven-{{ maven_version }}-bin.tar.gz"
+        dest: "{{ maven_install_dir }}"
+        remote_src: yes
+
+    - name: Create symbolic link for Maven
+      file:
+        src: "{{ maven_home }}"
+        dest: "/opt/maven"
+        state: link
+        force: true
+
+    - name: Set Maven environment variables
+      copy:
+        dest: /etc/profile.d/maven.sh
+        content: |
+          export M2_HOME=/opt/maven
+          export PATH=$M2_HOME/bin:$PATH
+        mode: '0755'
+
+    - name: Apply Maven environment variables
+      shell: source /etc/profile.d/maven.sh
+      args:
+        executable: /bin/bash
+
+    - name: install docker 
+        apt: 
+          name: docker.io 
+          state: present
+
+    - name: start docker services 
+        service: 
+          name: docker 
+          state: started 
+      
+    - name: give 777 permissions on /var/run/docker.sock
+        file: 
+          path: /var/run/docker.sock
+          state: file 
+          mode: 0777
+
+    - name: start docker on boot time 
+        service: 
+          name: docker 
+          enabled: yes 
+          
